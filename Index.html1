@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ApexT&P - Training & Placement Portal</title>
+    <style>
+        :root {
+            --primary: #0f172a;
+            --accent: #2563eb;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --border: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        /* Ticker Announcement Bar */
+        .ticker-container {
+            background: #1e293b;
+            color: #fff;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+        }
+        .ticker-label {
+            background: #ef4444;
+            color: #fff;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-right: 12px;
+            white-space: nowrap;
+        }
+        .ticker-text {
+            white-space: nowrap;
+            animation: ticker 20s linear infinite;
+        }
+        @keyframes ticker {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        /* Navigation Header */
+        header {
+            background: var(--primary);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #60a5fa;
+        }
+
+        nav button {
+            background: transparent;
+            border: none;
+            color: #cbd5e1;
+            font-size: 1rem;
+            margin-left: 1rem;
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        nav button:hover, nav button.active {
+            color: white;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1100px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .page-section {
+            display: none;
+        }
+
+        .page-section.active {
+            display: block;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #1e3a8a, #2563eb);
+            color: white;
+            padding: 3rem 2rem;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .hero h1 {
+            font-size: 2.2rem;
+            margin-bottom: 1rem;
+        }
+
+        .hero button {
+            background: white;
+            color: #1e3a8a;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 1rem;
+            transition: opacity 0.2s;
+        }
+
+        .hero button:hover {
+            opacity: 0.9;
+        }
+
+        /* Drives Grid & Search */
+        .search-bar {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .drives-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .drive-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .drive-card h3 {
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+
+        .drive-card p {
+            font-size: 0.95rem;
+            color: #475569;
+            margin-bottom: 0.4rem;
+        }
+
+        .apply-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.6rem;
+            width: 100%;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 1rem;
+        }
+
+        /* Registration Form */
+        .form-card {
+            background: white;
+            border: 1px solid var(--border);
+            padding: 2rem;
+            border-radius: 8px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 0.4rem;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+        }
+
+        .submit-btn {
+            background: #16a34a;
+            color: white;
+            border: none;
+            padding: 0.8rem;
+            width: 100%;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        /* Success Message Alert */
+        .alert-box {
+            display: none;
+            background: #dcfce7;
+            color: #166534;
+            padding: 1rem;
+            border-radius: 6px;
+            border: 1px solid #86efac;
+            margin-bottom: 1rem;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: #64748b;
+            font-size: 0.9rem;
+            border-top: 1px solid var(--border);
+            margin-top: 3rem;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Announcement Ticker -->
+    <div class="ticker-container">
+        <span class="ticker-label">URGENT</span>
+        <div class="ticker-text">
+            TCS NQT 2026 Registration Closes Tomorrow! | Deloitte Mock Interview slots are live now. | Microsoft Internship Drive opens next week!
+        </div>
+    </div>
+
+    <!-- Main Navigation Header -->
+    <header>
+        <div class="logo">ApexT&P Cell</div>
+        <nav>
+            <button class="nav-link active" onclick="showPage('home-page')">Home</button>
+            <button class="nav-link" onclick="showPage('drives-page')">Placement Drives</button>
+            <button class="nav-link" onclick="showPage('apply-page')">Student Portal</button>
+        </nav>
+    </header>
+
+    <div class="container">
+
+        <!-- HOME PAGE -->
+        <div id="home-page" class="page-section active">
+            <div class="hero">
+                <h1>Connecting Talent with Industry Opportunities</h1>
+                <p>Track active recruitment drives, check eligibility, and prepare for interviews all in one unified portal.</p>
+                <button onclick="showPage('drives-page')">Explore Placement Drives</button>
+            </div>
+
+            <h2>Key Placement Highlights</h2>
+            <br>
+            <div class="drives-grid">
+                <div class="drive-card">
+                    <h3>92% Placement Rate</h3>
+                    <p>Over 450+ students placed across premier engineering and tech branches in the 2025-2026 drive.</p>
+                </div>
+                <div class="drive-card">
+                    <h3>50+ Recruiting Partners</h3>
+                    <p>Top tier MNCs including TCS, Deloitte, Tech Mahindra, and Microsoft actively hire from our campus.</p>
+                </div>
+                <div class="drive-card">
+                    <h3>Mock Interview Cell</h3>
+                    <p>Weekly technical and HR mock interviews organized by alumni to boost student readiness.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- PLACEMENT DRIVES PAGE -->
+        <div id="drives-page" class="page-section">
+            <h2>Active Recruitment Drives</h2>
+            <p style="margin-bottom: 1rem; color: #64748b;">Search and view upcoming hiring opportunities.</p>
+
+            <input type="text" id="searchDrive" class="search-bar" placeholder="Search by company name, role, or branch (e.g. TCS, Developer, CSE)..." onkeyup="filterDrives()">
+
+            <div class="drives-grid" id="drivesGrid">
+                
+                <div class="drive-card-item drive-card">
+                    <div>
+                        <h3>TCS NQT 2026</h3>
+                        <p><strong>Role:</strong> Ninja & Digital Software Engineer</p>
+                        <p><strong>Eligibility:</strong> B.Tech (CSE, ECE, IT, EE) | Min 60%</p>
+                        <p><strong>Package:</strong> 3.36 LPA - 7.0 LPA</p>
+                        <p><strong>Deadline:</strong> Aug 10, 2026</p>
+                    </div>
+                    <button class="apply-btn" onclick="openApplyForm('TCS NQT 2026')">Apply Now</button>
+                </div>
+
+                <div class="drive-card-item drive-card">
+                    <div>
+                        <h3>Deloitte US India</h3>
+                        <p><strong>Role:</strong> Analyst - Technology Consulting</p>
+                        <p><strong>Eligibility:</strong> All B.Tech Streams | Min 6.5 CGPA</p>
+                        <p><strong>Package:</strong> 7.6 LPA</p>
+                        <p><strong>Deadline:</strong> Aug 18, 2026</p>
+                    </div>
+                    <button class="apply-btn" onclick="openApplyForm('Deloitte Analyst')">Apply Now</button>
+                </div>
+
+                <div class="drive-card-item drive-card">
+                    <div>
+                        <h3>Microsoft India</h3>
+                        <p><strong>Role:</strong> SDE Intern (Summer 2027)</p>
+                        <p><strong>Eligibility:</strong> B.Tech Pre-Final Year Students</p>
+                        <p><strong>Package:</strong> 1.2 Lakh/month Stipend</p>
+                        <p><strong>Deadline:</strong> Aug 25, 2026</p>
+                    </div>
+                    <button class="apply-btn" onclick="openApplyForm('Microsoft SDE Intern')">Apply Now</button>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- APPLY FORM PAGE -->
+        <div id="apply-page" class="page-section">
+            <div class="form-card">
+                <h2>Student Registration Form</h2>
+                <p style="margin-bottom: 1.5rem; color: #64748b;">Submit your application directly to the Placement Cell.</p>
+
+                <div id="alertBox" class="alert-box">
+                    Application submitted successfully! The T&P Cell will review your application.
+                </div>
+
+                <!-- Web3Forms API Integration -->
+                <form id="placementForm" action="https://api.web3forms.com/submit" method="POST">
+                    <input type="hidden" name="access_key" value="YOUR_ACCESS_KEY_HERE">
+                    <input type="hidden" name="subject" value="New T&P Cell Student Application">
+
+                    <div class="form-group">
+                        <label>Target Company/Drive</label>
+                        <input type="text" id="targetCompany" name="Target Drive" value="General Portal Registration" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" name="Full Name" placeholder="e.g. Riya Arya" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Roll / Registration Number</label>
+                        <input type="text" name="Roll Number" placeholder="e.g. 230101001" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Branch</label>
+                        <select name="Branch" required>
+                            <option value="">Select Branch</option>
+                            <option value="CSE">Computer Science Engineering</option>
+                            <option value="IT">Information Technology</option>
+                            <option value="ECE">Electronics & Communication</option>
+                            <option value="EE">Electrical Engineering</option>
+                            <option value="ME">Mechanical / Civil / Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Current CGPA / Percentage</label>
+                        <input type="text" name="CGPA" placeholder="e.g. 8.2 or 82%" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Resume Link (Google Drive / LinkedIn)</label>
+                        <input type="url" name="Resume Link" placeholder="https://drive.google.com/..." required>
+                    </div>
+
+                    <button type="submit" class="submit-btn">Submit Application</button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        <p>&copy; 2026 Apex Training & Placement Cell Portal. Deployed live on GitHub Pages.</p>
+    </footer>
+
+    <!-- JavaScript Engine -->
+    <script>
+        // Page Navigation Logic
+        function showPage(pageId) {
+            const sections = document.querySelectorAll('.page-section');
+            const navLinks = document.querySelectorAll('.nav-link');
+
+            sections.forEach(section => {
+                section.classList.remove('active');
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+            });
+
+            document.getElementById(pageId).classList.add('active');
+        }
+
+        // Search Filter for Placement Drives
+        function filterDrives() {
+            const input = document.getElementById('searchDrive').value.toLowerCase();
+            const cards = document.getElementsByClassName('drive-card-item');
+
+            for (let i = 0; i < cards.length; i++) {
+                const text = cards[i].innerText.toLowerCase();
+                if (text.includes(input)) {
+                    cards[i].style.display = "flex";
+                } else {
+                    cards[i].style.display = "none";
+                }
+            }
+        }
+
+        // Auto-fill drive name when clicking Apply
+        function openApplyForm(companyName) {
+            document.getElementById('targetCompany').value = companyName;
+            showPage('apply-page');
+        }
+
+        // Intercept Form Submission for Live Notification Alert
+        document.getElementById('placementForm').addEventListener('submit', function(e) {
+            const alertBox = document.getElementById('alertBox');
+            alertBox.style.display = 'block';
+            setTimeout(() => {
+                alertBox.style.display = 'none';
+            }, 5000);
+        });
+    </script>
+</body>
+</html>
