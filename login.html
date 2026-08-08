@@ -326,7 +326,7 @@
 
     // Replace these placeholders with your Supabase project details.
 
-    const SUPABASE_URL = "https://hpbksldyuxqdoexbzxro.supabase.co/rest/v1/";
+    const SUPABASE_URL = "https://hpbksldyuxqdoexbzxro.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_Y7KwVS2oi_F7BXsmMcfKKA_yXVZGpuH";
 
 
@@ -416,7 +416,7 @@
 
 
       // Basic validation
-      if (!email || !password) {
+      if (!email || !password || !role) {
 
         showMessage(
           "Please enter your email, password, and role.",
