@@ -6,6 +6,7 @@
   <title>ApexT&P - Training & Placement Portal</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans antialiased">
 
@@ -153,7 +154,14 @@
           <div class="text-indigo-400 text-2xl mb-3"><i class="fa-solid fa-file-invoice"></i></div>
           <h3 class="font-bold text-lg mb-2">Automated ATS Resume Checker</h3>
           <p class="text-slate-300 text-xs leading-relaxed mb-4">Upload your resume to check compatibility with job descriptions and standard recruiter filters.</p>
-          <button onclick="alert('Resume Analyzer simulator: Score 88/100. Keywords matched!')" class="text-xs font-semibold text-indigo-300 hover:text-white flex items-center gap-1">Test ATS Score <i class="fa-solid fa-arrow-right"></i></button>
+          <input type="file" id="resumeFileInput" accept=".pdf" class="text-xs text-slate-300 mb-3 block w-full">
+
+          <button onclick="uploadAndAnalyzeResume()" class="text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg transition flex items-center justify-center gap-1 w-full">
+            Analyze Resume <i class="fa-solid fa-arrow-right"></i>
+          </button>
+
+          <!-- Dynamic Result Box -->
+          <div id="resumeResultContainer" class="mt-4 text-xs text-slate-200"></div>
         </div>
 
         <div class="bg-indigo-950/70 p-6 rounded-xl border border-indigo-800">
@@ -196,6 +204,70 @@
         const text = card.textContent.toLowerCase();
         card.style.display = text.includes(input) ? "block" : "none";
       });
+    }
+    async function uploadAndAnalyzeResume() {
+            const fileInput = document.getElementById('resumeFileInput');
+            const resultContainer = document.getElementById('resumeResultContainer');
+            
+            if (!fileInput || fileInput.files.length === 0) {
+                alert("Please select a PDF resume file first!");
+                return;
+            }
+
+            const file = fileInput.files[0];
+            if (!file.name.toLowerCase().endsWith('.pdf')) {
+                alert("Please upload a valid PDF file.");
+                return;
+            }
+
+            resultContainer.innerHTML = "<span class='text-indigo-300'>Reading and analyzing your resume...</span>";
+
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer })
+               const pdfDoc = await loadingTask.promise;
+                
+                let extractedText = "";
+                
+                for (let i = 1; i <= pdfDoc.numPages; i++) {
+                    const page = await pdfDoc.getPage(i);
+                    const textContent = await page.getTextContent();
+                    const pageText = textContent.items.map(item => item.str).join(" ");
+                    extractedText += pageText + " ";
+                }
+
+                const textLower = extractedText.toLowerCase();
+                const coreKeywords = ["python", "java", "c++", "sql", "data structures", "algorithms", "git", "api", "problem solving", "project", "html", "css", "javascript"];
+                
+                let foundKeywords = [];
+                let missingKeywords = [];
+
+                coreKeywords.forEach(kw => {
+                    const regex = new RegExp(\\b${kw}\\b, 'i');
+                    if (regex.test(textLower)) {
+                        foundKeywords.push(kw);
+                    } else { missingKeywords.push(kw);
+                    }
+                });
+
+                let keywordScore = Math.round((foundKeywords.length / coreKeywords.length) * 100);
+                let finalScore = Math.max(keywordScore, 45); 
+                if (extractedText.trim().length < 50) {
+                    finalScore = 20; 
+                }
+
+                resultContainer.innerHTML = `
+                    <div class="bg-slate-900 p-3 rounded-lg border border-indigo-700 mt-2">
+                        <p class="font-bold text-emerald-400 mb-1">ATS Score: ${finalScore} / 100</p>
+                        <p class="mb-1"><strong>Found:</strong> ${foundKeywords.length > 0 ? foundKeywords.join(', ') : 'None'}</p>
+                        <p><strong>Missing:</strong> <span class="text-amber-300">${missingKeywords.slice(0, 4).join(', ')}</span></p>
+                    </div>
+                `;
+
+            } catch (error) {
+                console.error("PDF Parsing Error:", error);
+                resultContainer.innerHTML = "<span class='text-red-400'>Could not read this PDF. Try another file.</span>";  
+            }
     }
   </script>
 </body>
