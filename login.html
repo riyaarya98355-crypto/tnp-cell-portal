@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>T&P Cell | Login</title>
+
+  <!-- Supabase JS v2 -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Segoe UI", Arial, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background:
+        radial-gradient(circle at top left, rgba(59, 130, 246, 0.35), transparent 35%),
+        radial-gradient(circle at bottom right, rgba(37, 99, 235, 0.25), transparent 35%),
+        linear-gradient(135deg, #0f172a, #1e3a8a);
+      padding: 20px;
+    }
+
+    .login-container {
+      width: 100%;
+      max-width: 430px;
+    }
+
+    .login-card {
+      background: rgba(255, 255, 255, 0.97);
+      border-radius: 24px;
+      padding: 40px;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.25);
+      animation: slideUp 0.6s ease;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .logo {
+      width: 70px;
+      height: 70px;
+      margin: 0 auto 20px;
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: white;
+      font-size: 28px;
+      font-weight: 700;
+      box-shadow: 0 10px 25px rgba(37, 99, 235, 0.35);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .header h1 {
+      color: #0f172a;
+      font-size: 27px;
+      margin-bottom: 8px;
+    }
+
+    .header p {
+      color: #64748b;
+      font-size: 14px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: #334155;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    input,
+    select {
+      width: 100%;
+      height: 50px;
+      padding: 0 15px;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      outline: none;
+      font-size: 15px;
+      color: #1e293b;
+      background: #f8fafc;
+      transition: 0.25s ease;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: #2563eb;
+      background: white;
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+    }
+
+    input::placeholder {
+      color: #94a3b8;
+    }
+
+    .password-wrapper {
+      position: relative;
+    }
+
+    .password-wrapper input {
+      padding-right: 50px;
+    }
+
+    .toggle-password {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      color: #64748b;
+      font-size: 18px;
+    }
+
+    .login-btn {
+      width: 100%;
+      height: 52px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.25s ease;
+      margin-top: 5px;
+    }
+
+    .login-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3);
+    }
+
+    .login-btn:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .message {
+      display: none;
+      padding: 12px 14px;
+      border-radius: 10px;
+      margin-bottom: 18px;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .message.error {
+      display: block;
+      background: #fee2e2;
+      color: #b91c1c;
+      border: 1px solid #fecaca;
+    }
+
+    .message.success {
+      display: block;
+      background: #dcfce7;
+      color: #15803d;
+      border: 1px solid #bbf7d0;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 25px;
+      color: #94a3b8;
+      font-size: 12px;
+    }
+
+    .footer span {
+      color: #2563eb;
+      font-weight: 600;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @media (max-width: 480px) {
+      .login-card {
+        padding: 30px 22px;
+        border-radius: 20px;
+      }
+
+      .header h1 {
+        font-size: 24px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="login-container">
+
+    <div class="login-card">
+
+      <div class="logo">
+        T&P
+      </div>
+
+      <div class="header">
+        <h1>T&P Cell Portal</h1>
+        <p>Training & Placement Management System</p>
+      </div>
+
+      <div id="message" class="message"></div>
+
+      <form id="loginForm">
+
+        <!-- Email -->
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input
+            type="email"
+            id="email"
+            placeholder="Enter your email"
+            autocomplete="email"
+            required
+          >
+        </div>
+
+        <!-- Password -->
+        <div class="form-group">
+          <label for="password">Password</label>
+
+          <div class="password-wrapper">
+            <input
+              type="password"
+              id="password"
+              placeholder="Enter your password"
+              autocomplete="current-password"
+              required
+            >
+
+            <button
+              type="button"
+              class="toggle-password"
+              id="togglePassword"
+              aria-label="Show password"
+            >
+              👁
+            </button>
+          </div>
+        </div>
+
+        <!-- Role -->
+        <div class="form-group">
+          <label for="role">Login As</label>
+
+          <select id="role" required>
+            <option value="">Select your role</option>
+            <option value="student">Student</option>
+            <option value="recruiter">Recruiter</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+
+        <button
+          type="submit"
+          class="login-btn"
+          id="loginButton"
+        >
+          Sign In
+        </button>
+
+      </form>
+
+      <div class="footer">
+        © 2026 <span>T&P Cell</span> · All Rights Reserved
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <script>
+    // ============================================================
+    // SUPABASE CONFIGURATION
+    // ============================================================
+
+    // Replace these placeholders with your Supabase project details.
+
+    const SUPABASE_URL = "https://hpbksldyuxqdoexbzxro.supabase.co/rest/v1/";
+    const SUPABASE_ANON_KEY = "sb_publishable_Y7KwVS2oi_F7BXsmMcfKKA_yXVZGpuH";
+
+
+    // Create Supabase client
+    const { createClient } = supabase;
+
+    const supabaseClient = createClient(
+      SUPABASE_URL,
+      SUPABASE_ANON_KEY
+    );
+
+
+    // ============================================================
+    // DOM ELEMENTS
+    // ============================================================
+
+    const loginForm = document.getElementById("loginForm");
+    const emailInput = document.getElementById("email");
+    const passwordInput = document.getElementById("password");
+    const roleInput = document.getElementById("role");
+    const loginButton = document.getElementById("loginButton");
+    const messageBox = document.getElementById("message");
+    const togglePassword = document.getElementById("togglePassword");
+
+
+    // ============================================================
+    // SHOW MESSAGE
+    // ============================================================
+
+    function showMessage(message, type) {
+
+      messageBox.textContent = message;
+
+      messageBox.className = "message " + type;
+    }
+
+
+    // ============================================================
+    // HIDE MESSAGE
+    // ============================================================
+
+    function hideMessage() {
+
+      messageBox.textContent = "";
+
+      messageBox.className = "message";
+    }
+
+
+    // ============================================================
+    // SHOW / HIDE PASSWORD
+    // ============================================================
+
+    togglePassword.addEventListener("click", function () {
+
+      if (passwordInput.type === "password") {
+
+        passwordInput.type = "text";
+
+        togglePassword.textContent = "🙈";
+
+      } else {
+
+        passwordInput.type = "password";
+
+        togglePassword.textContent = "👁";
+
+      }
+
+    });
+
+
+    // ============================================================
+    // LOGIN
+    // ============================================================
+
+    loginForm.addEventListener("submit", async function (event) {
+
+      event.preventDefault();
+
+      hideMessage();
+
+
+      const email = emailInput.value.trim();
+      const password = passwordInput.value;
+      const role = roleInput.value;
+
+
+      // Basic validation
+      if (!email || !password || !role) {
+
+        showMessage(
+          "Please enter your email, password, and role.",
+          "error"
+        );
+
+        return;
+      }
+
+
+      // Loading state
+      loginButton.disabled = true;
+
+      loginButton.innerHTML =
+        '<span class="spinner"></span>Signing in...';
+
+
+      try {
+
+        // Supabase email/password authentication
+        const { data, error } =
+          await supabaseClient.auth.signInWithPassword({
+            email: email,
+            password: password
+          });
+
+
+        // Authentication failed
+        if (error) {
+
+          throw error;
+
+        }
+
+
+        // Successful login
+        if (data.user) {
+
+          // Store selected role for use on dashboard
+          sessionStorage.setItem("userRole", role);
+
+          sessionStorage.setItem(
+            "userEmail",
+            data.user.email
+          );
+
+
+          showMessage(
+            "Login successful! Redirecting...",
+            "success"
+          );
+
+
+          // Redirect to dashboard
+          setTimeout(function () {
+
+            window.location.href = "dashboard.html";
+
+          }, 800);
+
+        }
+
+      } catch (error) {
+
+        console.error("Login error:", error);
+
+        showMessage(
+          error.message || "Unable to login. Please try again.",
+          "error"
+        );
+
+
+        // Reset button
+        loginButton.disabled = false;
+
+        loginButton.textContent = "Sign In";
+
+      }
+
+    });
+
+
+    // ============================================================
+    // OPTIONAL: CHECK EXISTING SESSION
+    // ============================================================
+
+    async function checkExistingSession() {
+
+      const {
+        data: { session }
+      } = await supabaseClient.auth.getSession();
+
+
+      if (session) {
+
+        // Uncomment if you want already-authenticated
+        // users to automatically go to dashboard.
+
+        // window.location.href = "dashboard.html";
+
+      }
+
+    }
+
+    checkExistingSession();
+
+  </script>
+
+</body>
+</html>
