@@ -1,0 +1,1621 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>T&P Cell | Dashboard</title>
+
+  <!-- =========================================================
+       SUPABASE JS v2
+  ========================================================== -->
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Segoe UI", Arial, sans-serif;
+    }
+
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --sidebar: #0f172a;
+      --sidebar-light: #1e293b;
+      --background: #f1f5f9;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --success: #16a34a;
+      --warning: #d97706;
+      --danger: #dc2626;
+    }
+
+    body {
+      min-height: 100vh;
+      background: var(--background);
+      color: var(--text);
+    }
+
+    /* =========================================================
+       SIDEBAR
+    ========================================================== */
+
+    .sidebar {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 250px;
+      height: 100vh;
+      background: var(--sidebar);
+      color: white;
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      z-index: 1000;
+      transition: 0.3s ease;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 10px 30px;
+    }
+
+    .brand-logo {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .brand-text h2 {
+      font-size: 17px;
+    }
+
+    .brand-text span {
+      color: #94a3b8;
+      font-size: 11px;
+    }
+
+    .nav-title {
+      color: #64748b;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 0 12px;
+      margin-bottom: 10px;
+    }
+
+    .nav-menu {
+      list-style: none;
+    }
+
+    .nav-menu li {
+      margin-bottom: 5px;
+    }
+
+    .nav-menu a {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      padding: 12px;
+      color: #cbd5e1;
+      text-decoration: none;
+      border-radius: 10px;
+      font-size: 14px;
+      transition: 0.2s ease;
+    }
+
+    .nav-menu a:hover,
+    .nav-menu a.active {
+      background: var(--sidebar-light);
+      color: white;
+    }
+
+    .nav-menu a.active {
+      background: var(--primary);
+    }
+
+    .nav-icon {
+      width: 22px;
+      text-align: center;
+      font-size: 17px;
+    }
+
+    .sidebar-bottom {
+      margin-top: auto;
+    }
+
+    .logout-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      background: transparent;
+      color: #cbd5e1;
+      cursor: pointer;
+      font-size: 14px;
+      text-align: left;
+      transition: 0.2s ease;
+    }
+
+    .logout-btn:hover {
+      background: rgba(220, 38, 38, 0.15);
+      color: #fca5a5;
+    }
+
+    /* =========================================================
+       MAIN CONTENT
+    ========================================================== */
+
+    .main {
+      margin-left: 250px;
+      min-height: 100vh;
+      padding: 25px 30px;
+      transition: 0.3s ease;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 28px;
+    }
+
+    .menu-btn {
+      display: none;
+      border: none;
+      background: white;
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 20px;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+    }
+
+    .welcome h1 {
+      font-size: 27px;
+      margin-bottom: 5px;
+    }
+
+    .welcome p {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .user-area {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .user-info {
+      text-align: right;
+    }
+
+    .user-info strong {
+      display: block;
+      font-size: 14px;
+    }
+
+    .user-info span {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: capitalize;
+    }
+
+    .avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+    }
+
+    /* =========================================================
+       STAT CARDS
+    ========================================================== */
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+      margin-bottom: 25px;
+    }
+
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 21px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: 0.25s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+
+    .stat-number {
+      font-size: 26px;
+      font-weight: 700;
+    }
+
+    .stat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 21px;
+      background: #dbeafe;
+    }
+
+    /* =========================================================
+       CONTENT GRID
+    ========================================================== */
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 22px;
+      margin-bottom: 20px;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .card-header h2 {
+      font-size: 17px;
+    }
+
+    .view-all {
+      color: var(--primary);
+      font-size: 13px;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    /* =========================================================
+       PLACEMENT TABLE
+    ========================================================== */
+
+    .table-wrapper {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 550px;
+    }
+
+    th {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+      text-align: left;
+      padding: 11px 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 14px 8px;
+      font-size: 13px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    .company {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .company-logo {
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #eff6ff;
+      color: var(--primary);
+      font-weight: 700;
+      font-size: 12px;
+    }
+
+    .company-name {
+      font-weight: 600;
+    }
+
+    .company-role {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      margin-top: 2px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 5px 9px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .badge.green {
+      background: #dcfce7;
+      color: #15803d;
+    }
+
+    .badge.orange {
+      background: #ffedd5;
+      color: #c2410c;
+    }
+
+    .badge.blue {
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
+
+    /* =========================================================
+       QUICK ACTIONS
+    ========================================================== */
+
+    .quick-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .action {
+      padding: 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      text-decoration: none;
+      color: var(--text);
+      transition: 0.2s ease;
+    }
+
+    .action:hover {
+      border-color: #93c5fd;
+      background: #eff6ff;
+      transform: translateY(-2px);
+    }
+
+    .action-icon {
+      font-size: 21px;
+      margin-bottom: 9px;
+    }
+
+    .action strong {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 3px;
+    }
+
+    .action span {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    /* =========================================================
+       UPCOMING EVENTS
+    ========================================================== */
+
+    .event {
+      display: flex;
+      gap: 13px;
+      padding: 12px 0;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .event:last-child {
+      border-bottom: none;
+    }
+
+    .event-date {
+      width: 43px;
+      min-width: 43px;
+      height: 43px;
+      border-radius: 10px;
+      background: #eff6ff;
+      color: var(--primary);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .event-date strong {
+      font-size: 15px;
+    }
+
+    .event-date span {
+      font-size: 9px;
+      text-transform: uppercase;
+    }
+
+    .event-info strong {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+
+    .event-info span {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    /* =========================================================
+       OVERLAY
+    ========================================================== */
+
+    .overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.5);
+      z-index: 900;
+    }
+
+    /* =========================================================
+       LOADING SCREEN
+    ========================================================== */
+
+    .loading-screen {
+      position: fixed;
+      inset: 0;
+      background: #f8fafc;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .loader {
+      width: 42px;
+      height: 42px;
+      border: 4px solid #dbeafe;
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* =========================================================
+       RESPONSIVE
+    ========================================================== */
+
+    @media (max-width: 1100px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .content-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .overlay.show {
+        display: block;
+      }
+
+      .main {
+        margin-left: 0;
+        padding: 20px;
+      }
+
+      .menu-btn {
+        display: block;
+      }
+
+      .topbar {
+        gap: 15px;
+      }
+
+      .welcome h1 {
+        font-size: 22px;
+      }
+
+      .user-info {
+        display: none;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .quick-actions {
+        grid-template-columns: 1fr;
+      }
+
+      .main {
+        padding: 16px;
+      }
+
+      .avatar {
+        width: 40px;
+        height: 40px;
+      }
+    }
+  </style>
+
+</head>
+
+<body>
+
+  <!-- =========================================================
+       LOADING SCREEN
+  ========================================================== -->
+
+  <div class="loading-screen" id="loadingScreen">
+    <div class="loader"></div>
+  </div>
+
+  <!-- =========================================================
+       MOBILE OVERLAY
+  ========================================================== -->
+
+  <div class="overlay" id="overlay"></div>
+
+  <!-- =========================================================
+       SIDEBAR
+  ========================================================== -->
+
+  <aside class="sidebar" id="sidebar">
+
+```
+<div class="brand">
+
+  <div class="brand-logo">
+    T&P
+  </div>
+
+  <div class="brand-text">
+    <h2>T&P Cell</h2>
+    <span>Placement Portal</span>
+  </div>
+
+</div>
+
+
+<div class="nav-title">
+  Main Menu
+</div>
+
+<ul class="nav-menu">
+
+  <li>
+    <a href="#" class="active">
+      <span class="nav-icon">⌂</span>
+      Dashboard
+    </a>
+  </li>
+
+  <li>
+    <a href="#">
+      <span class="nav-icon">💼</span>
+      Placements
+    </a>
+  </li>
+
+  <li>
+    <a href="#">
+      <span class="nav-icon">🏢</span>
+      Companies
+    </a>
+  </li>
+
+  <li>
+    <a href="#">
+      <span class="nav-icon">📅</span>
+      Events
+    </a>
+  </li>
+
+  <li>
+    <a href="#">
+      <span class="nav-icon">📄</span>
+      Applications
+    </a>
+  </li>
+
+  <li>
+    <a href="#">
+      <span class="nav-icon">👥</span>
+      Students
+    </a>
+  </li>
+
+  <li>
+    <a href="#">
+      <span class="nav-icon">📊</span>
+      Reports
+    </a>
+  </li>
+
+</ul>
+
+
+<div class="nav-title" style="margin-top: 25px;">
+  Account
+</div>
+
+<ul class="nav-menu">
+
+  <li>
+    <a href="#">
+      <span class="nav-icon">👤</span>
+      Profile
+    </a>
+  </li>
+
+  <li>
+    <a href="#">
+      <span class="nav-icon">⚙</span>
+      Settings
+    </a>
+  </li>
+
+</ul>
+
+
+<div class="sidebar-bottom">
+
+  <button class="logout-btn" id="logoutBtn">
+    <span class="nav-icon">↪</span>
+    Logout
+  </button>
+
+</div>
+```
+
+  </aside>
+
+  <!-- =========================================================
+       MAIN CONTENT
+  ========================================================== -->
+
+  <main class="main">
+
+```
+<!-- TOP BAR -->
+
+<div class="topbar">
+
+  <div style="display:flex; align-items:center; gap:14px;">
+
+    <button class="menu-btn" id="menuBtn">
+      ☰
+    </button>
+
+    <div class="welcome">
+      <h1>Dashboard</h1>
+      <p>Welcome back to the Training & Placement Portal.</p>
+    </div>
+
+  </div>
+
+
+  <div class="user-area">
+
+    <div class="user-info">
+      <strong id="userEmail">Loading...</strong>
+      <span id="userRole">User</span>
+    </div>
+
+    <div class="avatar" id="avatar">
+      U
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- =======================================================
+     STATISTICS
+======================================================== -->
+
+<section class="stats-grid">
+
+  <div class="stat-card">
+
+    <div>
+      <div class="stat-label">Total Students</div>
+      <div class="stat-number">1,248</div>
+    </div>
+
+    <div class="stat-icon">
+      👥
+    </div>
+
+  </div>
+
+
+  <div class="stat-card">
+
+    <div>
+      <div class="stat-label">Companies</div>
+      <div class="stat-number">86</div>
+    </div>
+
+    <div class="stat-icon">
+      🏢
+    </div>
+
+  </div>
+
+
+  <div class="stat-card">
+
+    <div>
+      <div class="stat-label">Placed Students</div>
+      <div class="stat-number">742</div>
+    </div>
+
+    <div class="stat-icon">
+      🎓
+    </div>
+
+  </div>
+
+
+  <div class="stat-card">
+
+    <div>
+      <div class="stat-label">Upcoming Drives</div>
+      <div class="stat-number">12</div>
+    </div>
+
+    <div class="stat-icon">
+      📅
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- =======================================================
+     MAIN DASHBOARD GRID
+======================================================== -->
+
+<div class="content-grid">
+
+
+  <!-- LEFT COLUMN -->
+
+  <div>
+
+    <!-- RECENT PLACEMENTS -->
+
+    <div class="card">
+
+      <div class="card-header">
+
+        <h2>Recent Placement Drives</h2>
+
+        <a href="#" class="view-all">
+          View All
+        </a>
+
+      </div>
+
+
+      <div class="table-wrapper">
+
+        <table>
+
+          <thead>
+
+            <tr>
+              <th>Company</th>
+              <th>Date</th>
+              <th>Package</th>
+              <th>Status</th>
+            </tr>
+
+          </thead>
+
+          <tbody>
+
+            <tr>
+
+              <td>
+                <div class="company">
+
+                  <div class="company-logo">
+                    TCS
+                  </div>
+
+                  <div>
+                    <span class="company-name">
+                      Tata Consultancy Services
+                    </span>
+
+                    <span class="company-role">
+                      Software Developer
+                    </span>
+                  </div>
+
+                </div>
+              </td>
+
+              <td>12 Aug 2026</td>
+
+              <td>₹7.5 LPA</td>
+
+              <td>
+                <span class="badge green">
+                  Open
+                </span>
+              </td>
+
+            </tr>
+
+
+            <tr>
+
+              <td>
+                <div class="company">
+
+                  <div class="company-logo">
+                    INF
+                  </div>
+
+                  <div>
+                    <span class="company-name">
+                      Infosys
+                    </span>
+
+                    <span class="company-role">
+                      System Engineer
+                    </span>
+                  </div>
+
+                </div>
+              </td>
+
+              <td>15 Aug 2026</td>
+
+              <td>₹6.5 LPA</td>
+
+              <td>
+                <span class="badge blue">
+                  Upcoming
+                </span>
+              </td>
+
+            </tr>
+
+
+            <tr>
+
+              <td>
+                <div class="company">
+
+                  <div class="company-logo">
+                    ACC
+                  </div>
+
+                  <div>
+                    <span class="company-name">
+                      Accenture
+                    </span>
+
+                    <span class="company-role">
+                      Associate Software Engineer
+                    </span>
+                  </div>
+
+                </div>
+              </td>
+
+              <td>20 Aug 2026</td>
+
+              <td>₹8.2 LPA</td>
+
+              <td>
+                <span class="badge orange">
+                  Registration
+                </span>
+              </td>
+
+            </tr>
+
+
+            <tr>
+
+              <td>
+                <div class="company">
+
+                  <div class="company-logo">
+                    WIP
+                  </div>
+
+                  <div>
+                    <span class="company-name">
+                      Wipro
+                    </span>
+
+                    <span class="company-role">
+                      Project Engineer
+                    </span>
+                  </div>
+
+                </div>
+              </td>
+
+              <td>25 Aug 2026</td>
+
+              <td>₹5.8 LPA</td>
+
+              <td>
+                <span class="badge blue">
+                  Upcoming
+                </span>
+              </td>
+
+            </tr>
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+
+
+    <!-- QUICK ACTIONS -->
+
+    <div class="card">
+
+      <div class="card-header">
+        <h2>Quick Actions</h2>
+      </div>
+
+
+      <div class="quick-actions">
+
+        <a href="#" class="action">
+
+          <div class="action-icon">
+            💼
+          </div>
+
+          <strong>Browse Jobs</strong>
+
+          <span>
+            Explore available opportunities
+          </span>
+
+        </a>
+
+
+        <a href="#" class="action">
+
+          <div class="action-icon">
+            📝
+          </div>
+
+          <strong>Applications</strong>
+
+          <span>
+            Track your applications
+          </span>
+
+        </a>
+
+
+        <a href="#" class="action">
+
+          <div class="action-icon">
+            📄
+          </div>
+
+          <strong>Resume</strong>
+
+          <span>
+            Manage your resume
+          </span>
+
+        </a>
+
+
+        <a href="#" class="action">
+
+          <div class="action-icon">
+            📅
+          </div>
+
+          <strong>Events</strong>
+
+          <span>
+            View upcoming events
+          </span>
+
+        </a>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- RIGHT COLUMN -->
+
+  <div>
+
+    <!-- UPCOMING EVENTS -->
+
+    <div class="card">
+
+      <div class="card-header">
+
+        <h2>Upcoming Events</h2>
+
+        <a href="#" class="view-all">
+          View All
+        </a>
+
+      </div>
+
+
+      <div class="event">
+
+        <div class="event-date">
+          <strong>12</strong>
+          <span>Aug</span>
+        </div>
+
+        <div class="event-info">
+
+          <strong>TCS Placement Drive</strong>
+
+          <span>
+            10:00 AM · Seminar Hall
+          </span>
+
+        </div>
+
+      </div>
+
+
+      <div class="event">
+
+        <div class="event-date">
+          <strong>15</strong>
+          <span>Aug</span>
+        </div>
+
+        <div class="event-info">
+
+          <strong>Infosys Pre-Placement Talk</strong>
+
+          <span>
+            11:30 AM · Auditorium
+          </span>
+
+        </div>
+
+      </div>
+
+
+      <div class="event">
+
+        <div class="event-date">
+          <strong>20</strong>
+          <span>Aug</span>
+        </div>
+
+        <div class="event-info">
+
+          <strong>Accenture Recruitment</strong>
+
+          <span>
+            09:30 AM · Lab 2
+          </span>
+
+        </div>
+
+      </div>
+
+
+      <div class="event">
+
+        <div class="event-date">
+          <strong>25</strong>
+          <span>Aug</span>
+        </div>
+
+        <div class="event-info">
+
+          <strong>Wipro Campus Drive</strong>
+
+          <span>
+            10:00 AM · Seminar Hall
+          </span>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- PROFILE CARD -->
+
+    <div class="card">
+
+      <div class="card-header">
+        <h2>Account</h2>
+      </div>
+
+      <p style="font-size:13px; color:#64748b; margin-bottom:8px;">
+        Logged in as
+      </p>
+
+      <p
+        id="profileEmail"
+        style="font-size:14px; font-weight:600; word-break:break-all;"
+      >
+        Loading...
+      </p>
+
+      <div style="margin-top:15px;">
+
+        <span
+          class="badge blue"
+          id="profileRole"
+        >
+          User
+        </span>
+
+      </div>
+
+    </div>
+
+
+    <!-- PLACEMENT SUMMARY -->
+
+    <div class="card">
+
+      <div class="card-header">
+        <h2>Placement Summary</h2>
+      </div>
+
+      <div style="margin-bottom:15px;">
+
+        <div style="
+          display:flex;
+          justify-content:space-between;
+          margin-bottom:7px;
+          font-size:12px;
+        ">
+          <span>Overall Placement</span>
+          <strong>59%</strong>
+        </div>
+
+        <div style="
+          height:8px;
+          background:#e2e8f0;
+          border-radius:20px;
+          overflow:hidden;
+        ">
+          <div style="
+            width:59%;
+            height:100%;
+            background:#2563eb;
+            border-radius:20px;
+          "></div>
+        </div>
+
+      </div>
+
+
+      <div>
+
+        <div style="
+          display:flex;
+          justify-content:space-between;
+          margin-bottom:7px;
+          font-size:12px;
+        ">
+          <span>Recruitment Drives</span>
+          <strong>72%</strong>
+        </div>
+
+        <div style="
+          height:8px;
+          background:#e2e8f0;
+          border-radius:20px;
+          overflow:hidden;
+        ">
+          <div style="
+            width:72%;
+            height:100%;
+            background:#16a34a;
+            border-radius:20px;
+          "></div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+```
+
+  </main>
+
+  <!-- =========================================================
+       JAVASCRIPT
+  ========================================================== -->
+
+  <script>
+
+    // ==========================================================
+    // SUPABASE CONFIGURATION
+    // ==========================================================
+
+    // Replace these two placeholders with your Supabase
+    // project URL and public anon key.
+
+    const SUPABASE_URL = "https://hpbksldyuxqdoexbzxro.supabase.co/rest/v1/";
+
+    const SUPABASE_ANON_KEY =
+      "sb_publishable_Y7KwVS2oi_F7BXsmMcfKKA_yXVZGpuH";
+
+
+    // Create Supabase client
+
+    const { createClient } = supabase;
+
+    const supabaseClient = createClient(
+      SUPABASE_URL,
+      SUPABASE_ANON_KEY
+    );
+
+
+    // ==========================================================
+    // DOM ELEMENTS
+    // ==========================================================
+
+    const loadingScreen =
+      document.getElementById("loadingScreen");
+
+    const logoutBtn =
+      document.getElementById("logoutBtn");
+
+    const userEmail =
+      document.getElementById("userEmail");
+
+    const userRole =
+      document.getElementById("userRole");
+
+    const profileEmail =
+      document.getElementById("profileEmail");
+
+    const profileRole =
+      document.getElementById("profileRole");
+
+    const avatar =
+      document.getElementById("avatar");
+
+    const sidebar =
+      document.getElementById("sidebar");
+
+    const menuBtn =
+      document.getElementById("menuBtn");
+
+    const overlay =
+      document.getElementById("overlay");
+
+
+    // ==========================================================
+    // CHECK ACTIVE SUPABASE SESSION
+    // ==========================================================
+
+    async function checkAuthentication() {
+
+      try {
+
+        const {
+          data: { session },
+          error
+        } = await supabaseClient.auth.getSession();
+
+
+        // If Supabase returned an error,
+        // send the user back to login.
+
+        if (error) {
+
+          console.error(
+            "Session error:",
+            error
+          );
+
+          window.location.replace("login.html");
+
+          return;
+        }
+
+
+        // No active session = not logged in.
+
+        if (!session) {
+
+          window.location.replace("login.html");
+
+          return;
+        }
+
+
+        // User is authenticated.
+
+        const user = session.user;
+
+        const email =
+          user.email || "User";
+
+
+        // Retrieve role saved during login.
+        // This is only for displaying the role.
+        // For real authorization, verify the role
+        // against your Supabase database/RLS.
+
+        const storedRole =
+          sessionStorage.getItem("userRole") ||
+          "user";
+
+
+        // Update user information.
+
+        userEmail.textContent = email;
+
+        profileEmail.textContent = email;
+
+        userRole.textContent = storedRole;
+
+        profileRole.textContent = storedRole;
+
+
+        // Generate avatar from first letter.
+
+        avatar.textContent =
+          email.charAt(0).toUpperCase();
+
+
+        // Remove loading screen.
+
+        loadingScreen.style.display = "none";
+
+      } catch (error) {
+
+        console.error(
+          "Authentication check failed:",
+          error
+        );
+
+        window.location.replace("login.html");
+
+      }
+
+    }
+
+
+    // ==========================================================
+    // LOGOUT
+    // ==========================================================
+
+    logoutBtn.addEventListener(
+      "click",
+      async function () {
+
+        logoutBtn.disabled = true;
+
+        logoutBtn.innerHTML =
+          '<span class="nav-icon">⏳</span> Logging out...';
+
+
+        try {
+
+          const { error } =
+            await supabaseClient.auth.signOut();
+
+
+          if (error) {
+
+            console.error(
+              "Logout error:",
+              error
+            );
+
+            // Even if sign-out returns an error,
+            // don't leave the user stuck on dashboard.
+
+          }
+
+
+          // Clear local role information.
+
+          sessionStorage.removeItem(
+            "userRole"
+          );
+
+          sessionStorage.removeItem(
+            "userEmail"
+          );
+
+
+          // Redirect to login.
+
+          window.location.replace(
+            "login.html"
+          );
+
+        } catch (error) {
+
+          console.error(
+            "Logout failed:",
+            error
+          );
+
+          window.location.replace(
+            "login.html"
+          );
+
+        }
+
+      }
+    );
+
+
+    // ==========================================================
+    // LISTEN FOR AUTH STATE CHANGES
+    // ==========================================================
+
+    supabaseClient.auth.onAuthStateChange(
+      function (event, session) {
+
+        if (
+          event === "SIGNED_OUT" ||
+          !session
+        ) {
+
+          window.location.replace(
+            "login.html"
+          );
+
+        }
+
+      }
+    );
+
+
+    // ==========================================================
+    // MOBILE SIDEBAR
+    // ==========================================================
+
+    menuBtn.addEventListener(
+      "click",
+      function () {
+
+        sidebar.classList.add("open");
+
+        overlay.classList.add("show");
+
+      }
+    );
+
+
+    overlay.addEventListener(
+      "click",
+      function () {
+
+        sidebar.classList.remove("open");
+
+        overlay.classList.remove("show");
+
+      }
+    );
+
+
+    // Close mobile sidebar after navigation.
+
+    document
+      .querySelectorAll(".nav-menu a")
+      .forEach(function (link) {
+
+        link.addEventListener(
+          "click",
+          function () {
+
+            sidebar.classList.remove("open");
+
+            overlay.classList.remove("show");
+
+          }
+        );
+
+      });
+
+
+    // ==========================================================
+    // INITIALIZE DASHBOARD
+    // ==========================================================
+
+    checkAuthentication();
+
+  </script>
+
+</body>
+</html>
