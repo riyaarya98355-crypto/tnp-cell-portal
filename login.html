@@ -331,12 +331,8 @@
 
 
     // Create Supabase client
-    const { createClient } = supabase;
-
-    const supabaseClient = createClient(
-      SUPABASE_URL,
-      SUPABASE_ANON_KEY
-    );
+    
+ const supabaseClient = window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 
 
     // ============================================================
@@ -433,7 +429,7 @@
       loginButton.innerHTML =
         '<span class="spinner"></span>Signing in...';
 
-
+ 
       try {
 
         // Supabase email/password authentication
