@@ -1614,31 +1614,6 @@
     // ==========================================================
 
     checkAuthentication();
-<script>
-    async function applyForJob(companyName) {
-        const { data: { session }, error: sessionError } = await window.supabase.auth.getSession();
-        
-        if (sessionError || !session) {
-            alert("Please log in first to apply for jobs!");
-            window.location.href = "login.html";
-            return;
-        }
-
-        const studentEmail = session.user.email;
-
-        const { data, error } = await window.supabase
-            .from('applications')
-            .insert([
-                { student_email: studentEmail, company_name: companyName }
-            ]);
-
-        if (error) {
-            console.error("Error applying:", error.message);
-            alert("Failed to submit application. Try again.");
-        } else {
-            alert("Your application for " + companyName + " has been successfully submitted!");
-        }
-    }
   </script>
 
 </body>
