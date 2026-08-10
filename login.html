@@ -309,6 +309,35 @@
         </button>
 
       </form>
+                  <div style="text-align: center; margin-top: 20px;">
+        <p style="font-size: 14px; color: #64748b;">
+          Don't have an account? 
+          <a href="#" id="showSignup" style="color: #2563eb; text-decoration: none; font-weight: 600;">Sign Up</a>
+        </p>
+      </div>
+
+      <form id="signupForm" style="display: none; margin-top: 20px;">
+        <div class="header" style="margin-bottom: 15px;">
+          <h2 style="font-size: 20px; color: #0f172a;">Create New Account</h2>
+        </div>
+        
+        <div class="form-group">
+          <label for="signupEmail">Email Address</label>
+          <input type="email" id="signupEmail" placeholder="Enter your email" required>
+        </div>
+
+        <div class="form-group">
+          <label for="signupPassword">Password</label>
+          <input type="password" id="signupPassword" placeholder="Create a password" required>
+        </div>
+
+        <button type="submit" class="login-btn" id="signupButton">Register Account</button>
+        
+        <p style="text-align: center; margin-top: 15px; font-size: 14px;">
+          Already have an account? 
+          <a href="#" id="showLogin" style="color: #2563eb; text-decoration: none; font-weight: 600;">Sign In</a>
+        </p>
+      </form>
 
       <div class="footer">
         © 2026 <span>T&P Cell</span> · All Rights Reserved
@@ -516,6 +545,80 @@
       }
 
     }
+        // ============================================================
+    // TOGGLE BETWEEN LOGIN AND SIGNUP FORMS
+    // ============================================================
+
+    const loginFormElement = document.getElementById("loginForm");
+    const signupFormElement = document.getElementById("signupForm");
+    const showSignupLink = document.getElementById("showSignup");
+    const showLoginLink = document.getElementById("showLogin");
+
+    showSignupLink.addEventListener("click", function (e) {
+      e.preventDefault();
+      loginFormElement.style.display = "none";
+      signupFormElement.style.display = "block";
+      hideMessage();
+    });
+
+    showLoginLink.addEventListener("click", function (e) {
+      e.preventDefault();
+      signupFormElement.style.display = "none";
+      loginFormElement.style.display = "block";
+      hideMessage();
+    });
+
+
+    // ============================================================
+    // SIGN UP LOGIC
+    // ============================================================
+
+    const signupButton = document.getElementById("signupButton");
+
+    signupFormElement.addEventListener("submit", async function (event) {
+      event.preventDefault();
+      hideMessage();
+
+      const email = document.getElementById("signupEmail").value.trim();
+      const password = document.getElementById("signupPassword").value;
+
+      if (!email || !password) {
+        showMessage("Please enter both email and password for sign up.", "error");
+        return;
+      }
+
+      signupButton.disabled = true;
+      signupButton.innerHTML = '<span class="spinner"></span>Creating Account...';
+
+      try {
+        const { data, error } = await supabaseClient.auth.signUp({
+          email: email,
+          password: password
+        });
+
+        if (error) {
+          throw error;
+        }
+
+        showMessage("Account created successfully! You can now sign in.", "success");
+        
+        // Switch back to login form after successful registration
+        setTimeout(function () {
+          signupFormElement.style.display = "none";
+          loginFormElement.style.display = "block";
+          signupButton.disabled = false;
+          signupButton.textContent = "Register Account";
+        }, 1500);
+
+      } catch (error) {
+        console.error("Signup error:", error);
+        showMessage(error.message || "Unable to sign up. Please try again.", "error");
+        
+        signupButton.disabled = false;
+        signupButton.textContent = "Register Account";
+      }
+    });
+
 
     checkExistingSession();
 
